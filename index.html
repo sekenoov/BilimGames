@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tech Trail</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============ SETUP ============ -->
+  <section id="screen-setup" class="screen is-active" aria-labelledby="setup-title">
+    <div class="setup">
+      <div class="setup__hero">
+        <img src="assets/cover.png" alt="" class="setup__cover">
+        <div class="setup__intro">
+          <p class="eyebrow">English speaking game</p>
+          <h1 id="setup-title" class="wordmark">Tech Trail</h1>
+          <p class="lead">Walk through a digital day. Is technology your friend — or your enemy? Speak English to move, answer and win.</p>
+          <ol class="rules">
+            <li><span class="rules__n">1</span>Roll the dice and tell the operator where to go.</li>
+            <li><span class="rules__n">2</span>Answer questions in English — up to 3 points.</li>
+            <li><span class="rules__n">3</span>Bonuses help you. Traps hurt — unless you talk your way out!</li>
+          </ol>
+        </div>
+      </div>
+
+      <form class="setup__panel" id="setup-form" autocomplete="off">
+        <div class="field">
+          <span class="field__label">Teams</span>
+          <div class="segmented" id="seg-teams" role="radiogroup" aria-label="Number of teams">
+            <button type="button" role="radio" data-v="2">2</button>
+            <button type="button" role="radio" data-v="3">3</button>
+            <button type="button" role="radio" data-v="4">4</button>
+          </div>
+        </div>
+
+        <div id="team-rows" class="team-rows"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <span class="field__label">Game time</span>
+            <div class="segmented" id="seg-time" role="radiogroup" aria-label="Game time">
+              <button type="button" role="radio" data-v="10">10 min</button>
+              <button type="button" role="radio" data-v="15">15 min</button>
+              <button type="button" role="radio" data-v="20">20 min</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field__label">Answer time</span>
+            <div class="segmented" id="seg-answer" role="radiogroup" aria-label="Answer time">
+              <button type="button" role="radio" data-v="30">30 s</button>
+              <button type="button" role="radio" data-v="45">45 s</button>
+              <button type="button" role="radio" data-v="60">60 s</button>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--large" id="btn-start">Start game <kbd>Enter</kbd></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen" aria-label="Game">
+    <header class="topbar">
+      <div class="topbar__brand">Tech Trail</div>
+      <div class="clock" id="clock" title="Game time (P to pause)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+        <span id="clock-text">15:00</span>
+      </div>
+      <div class="topbar__actions">
+        <button class="icon-btn" id="btn-undo" aria-label="Undo (Backspace)" title="Undo — Backspace">
+          <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-sound" aria-label="Sound on/off (M)" title="Sound — M">
+          <svg viewBox="0 0 24 24" class="ic-on"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+          <svg viewBox="0 0 24 24" class="ic-off"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-full" aria-label="Full screen (F)" title="Full screen — F">
+          <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-help" aria-label="Keyboard shortcuts (?)" title="Shortcuts — ?">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-exit" aria-label="End game" title="End game">
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="board-wrap">
+        <svg id="board" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" aria-label="Game board"></svg>
+        <div class="legend" aria-hidden="true">
+          <span><i class="dot dot--q"></i>Question</span>
+          <span><i class="dot dot--b"></i>Bonus</span>
+          <span><i class="dot dot--t"></i>Trap</span>
+          <span><i class="dot dot--p"></i>Place challenge</span>
+        </div>
+        <div class="banner" id="banner" hidden></div>
+      </div>
+
+      <aside class="side">
+        <div class="turn" id="turn"></div>
+        <div class="scores" id="scores"></div>
+        <div class="keys" id="keys"></div>
+      </aside>
+    </div>
+
+    <!-- Card overlay -->
+    <div class="overlay" id="overlay" hidden>
+      <div class="card" id="card" role="dialog" aria-modal="true"></div>
+    </div>
+
+    <!-- Help overlay -->
+    <div class="overlay" id="help" hidden>
+      <div class="card card--help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <h2 id="help-title">Operator shortcuts</h2>
+        <div class="help-grid">
+          <div><kbd>Space</kbd> Roll dice · Go · Continue</div>
+          <div><kbd>↑</kbd> / <kbd>↓</kbd> Choose road at a fork</div>
+          <div><kbd>0</kbd>–<kbd>3</kbd> Give points for an answer</div>
+          <div><kbd>H</kbd> (hold) Teacher hint</div>
+          <div><kbd>R</kbd> Another question</div>
+          <div><kbd>T</kbd> Pause answer timer</div>
+          <div><kbd>S</kbd> Trap: team saved itself</div>
+          <div><kbd>⌫</kbd> Undo last action</div>
+          <div><kbd>P</kbd> Pause game clock</div>
+          <div><kbd>M</kbd> Sound on/off</div>
+          <div><kbd>F</kbd> Full screen</div>
+          <div><kbd>?</kbd> This help</div>
+        </div>
+        <button class="btn btn--primary" data-close-help>Got it <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="screen-results" class="screen" aria-labelledby="results-title">
+    <div class="results">
+      <img src="assets/finish.png" alt="" class="results__img">
+      <p class="eyebrow" id="results-eyebrow">Game over</p>
+      <h1 id="results-title" class="results__title">…</h1>
+      <ol class="podium" id="podium"></ol>
+      <p class="results__q" id="results-q"></p>
+      <div class="results__actions">
+        <button class="btn btn--primary btn--large" id="btn-again">Play again <kbd>Enter</kbd></button>
+        <button class="btn btn--large" id="btn-newteams">New teams</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/data.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
