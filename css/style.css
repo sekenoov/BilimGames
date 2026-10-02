@@ -14,7 +14,7 @@
   --q: #0A6CDB;  --q-soft: #E7F0FC;
   --b: #1E8E4E;  --b-soft: #E3F4EA;
   --t: #D93B3F;  --t-soft: #FCE9E9;
-  --p: #F07A4A;  --p-soft: #FDEEE6;
+  --p: #E0A100;  --p-soft: #FDF4D9;
 
   --radius-l: 28px;
   --radius-m: 18px;
@@ -333,7 +333,7 @@ kbd {
 .chip--q { background: var(--q-soft); color: var(--q); }
 .chip--b { background: var(--b-soft); color: var(--b); }
 .chip--t { background: var(--t-soft); color: var(--t); }
-.chip--p { background: var(--p-soft); color: #B4471B; }
+.chip--p { background: var(--p-soft); color: #7A5600; }
 .chip--team { background: var(--surface-2); color: var(--text); }
 .chip--team i { width: .8rem; height: .8rem; border-radius: 50%; }
 .card__place { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1rem; }

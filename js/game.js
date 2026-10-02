@@ -340,8 +340,7 @@
   // Advance to the next team. Game ends after the last team of the final round.
   function endTurn(skipped) {
     const t = team();
-    if (!skipped && !t.finishedBefore) t.speaker = (t.speaker % t.players) + 1;
-    if (t.finished) t.finishedBefore = true;
+    if (!skipped) t.speaker = (t.speaker % t.players) + 1;
     state.card = null;
     state.die = null;
     state.chain = false;
@@ -556,7 +555,7 @@
         <div class="forks">${o.map((x, i) => `<button class="fork-btn" data-act="fork" data-i="${i}"><kbd>${x.key}</kbd><b>Turn ${x.dir} · ${esc(x.place)}</b><span>${esc(x.blurb)}</span></button>`).join("")}</div>
         <div class="status">${state.stepsLeft} ${state.stepsLeft === 1 ? "step" : "steps"} left</div>`;
     } else if (p === "skip") {
-      body = `<div class="status">${esc(t.name)} ${t.name.match(/s$/i) ? "are" : "is"} too tired after a late night online and miss this turn.</div>
+      body = `<div class="status"><b>${esc(t.name)}</b> must skip this turn — too tired after a late night online.</div>
         <button class="btn btn--primary btn--large" data-act="skip">Next team <kbd>Space</kbd></button>`;
     } else if (p === "card") {
       body = `<div class="status">Speaker ${t.speaker} is answering…</div>`;
@@ -881,10 +880,7 @@
       if (k === "Enter" && !typing) { e.preventDefault(); newGame(); }
       return;
     }
-    if (active === "screen-results") {
-      if (k === "Enter" || k === " ") { e.preventDefault(); newGame(); }
-      return;
-    }
+    if (active === "screen-results") return;
     if (!state || e.metaKey || e.ctrlKey || e.altKey) return;
 
     const helpOpen = !$("#help").hidden;
