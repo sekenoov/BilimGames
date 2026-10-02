@@ -5,7 +5,10 @@
 
 ![Tech Trail](assets/cover.png)
 
-## Запуск
+## Играть онлайн
+**https://sekenoov.github.io/tech-trail-english-game/**
+
+## Запуск без интернета
 Скачайте репозиторий и откройте `index.html` двойным кликом. Интернет и сервер не нужны.
 
 ## Как играть
