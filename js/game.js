@@ -13,24 +13,24 @@
   /* ============ Board ============ */
   // Upper branch = "turn left", lower branch = "turn right" (the map is read left → right).
   const NODES = {
-    home:    { x: 115,  y: 450, place: "home",    next: ["a1"] },
-    a1:      { x: 262,  y: 450, next: ["u1", "gaming"] },
-    u1:      { x: 335,  y: 262, next: ["school"] },
-    school:  { x: 485,  y: 175, place: "school",  next: ["u2"] },
-    u2:      { x: 635,  y: 262, next: ["cafe"] },
-    gaming:  { x: 425,  y: 650, place: "gaming",  next: ["d1"] },
-    d1:      { x: 598,  y: 628, next: ["cafe"], risky: true },
-    cafe:    { x: 745,  y: 450, place: "cafe",    next: ["b1"] },
-    b1:      { x: 892,  y: 450, next: ["p1", "mall"] },
-    p1:      { x: 965,  y: 262, next: ["park"] },
-    park:    { x: 1115, y: 175, place: "park",    next: ["p2"] },
-    p2:      { x: 1265, y: 262, next: ["techlab"] },
-    mall:    { x: 1055, y: 650, place: "mall",    next: ["m1"] },
-    m1:      { x: 1228, y: 628, next: ["techlab"], risky: true },
-    techlab: { x: 1345, y: 450, place: "techlab", next: ["finish"] },
-    finish:  { x: 1500, y: 450, place: "finish",  next: [] }
+    home:    { x: 100,  y: 540, place: "home",    next: ["a1"] },
+    a1:      { x: 255,  y: 540, next: ["u1", "gaming"] },
+    u1:      { x: 325,  y: 335, next: ["school"] },
+    school:  { x: 480,  y: 215, place: "school",  next: ["u2"] },
+    u2:      { x: 635,  y: 335, next: ["cafe"] },
+    gaming:  { x: 420,  y: 850, place: "gaming",  next: ["d1"] },
+    d1:      { x: 600,  y: 800, next: ["cafe"], risky: true },
+    cafe:    { x: 750,  y: 540, place: "cafe",    next: ["b1"] },
+    b1:      { x: 900,  y: 540, next: ["p1", "mall"] },
+    p1:      { x: 970,  y: 335, next: ["park"] },
+    park:    { x: 1120, y: 215, place: "park",    next: ["p2"] },
+    p2:      { x: 1275, y: 335, next: ["techlab"] },
+    mall:    { x: 1060, y: 850, place: "mall",    next: ["m1"] },
+    m1:      { x: 1240, y: 800, next: ["techlab"], risky: true },
+    techlab: { x: 1345, y: 540, place: "techlab", next: ["finish"] },
+    finish:  { x: 1515, y: 540, place: "finish",  next: [] }
   };
-  const PLACE_R = 62, CELL_R = 30, TOKEN_R = 22;
+  const PLACE_R = 70, CELL_R = 34, TOKEN_R = 24;
 
   // Distance (in steps) from each node to the finish, for progress bars.
   const DIST = (function () {
@@ -441,17 +441,17 @@
         el("circle", { class: "ring", r: PLACE_R }, g);
         el("image", { href: `assets/${n.place}.png`, x: -(PLACE_R - 6), y: -(PLACE_R - 6), width: (PLACE_R - 6) * 2, height: (PLACE_R - 6) * 2, "clip-path": `url(#clip-${id})`, preserveAspectRatio: "xMidYMid slice" }, g);
         el("circle", { class: "ring-accent", r: PLACE_R - 3 }, g);
-        const label = el("text", { class: "place-label", y: PLACE_R + 34 }, g);
+        const label = el("text", { class: "place-label", y: PLACE_R + 42 }, g);
         label.textContent = D.places[n.place].name;
         const sub = D.places[n.place].blurb;
-        if (id === "home") { const s = el("text", { class: "start-label", y: -PLACE_R - 16 }, g); s.textContent = "START"; }
-        else if (sub) { const s = el("text", { class: "place-sub", y: PLACE_R + 60 }, g); s.textContent = sub; }
+        if (id === "home") { const s = el("text", { class: "start-label", y: -PLACE_R - 18 }, g); s.textContent = "START"; }
+        else if (sub) { const s = el("text", { class: "place-sub", y: PLACE_R + 70 }, g); s.textContent = sub; }
       } else {
         const type = state.types[id];
         g.setAttribute("class", "cell cell--" + type);
         el("circle", { class: "pulse", r: CELL_R }, g);
         el("circle", { class: "base", r: CELL_R }, g);
-        el("path", { class: "glyph", d: GLYPHS[type] }, g);
+        el("path", { class: "glyph", d: GLYPHS[type], transform: "scale(1.15)" }, g);
       }
       g.addEventListener("click", () => {
         if (state.phase !== "fork") return;
@@ -507,7 +507,7 @@
       const same = groups[id];
       const k = same.indexOf(i), m = same.length;
       let dx = 0, dy = 0;
-      if (n.place) { dy = PLACE_R - 6; dx = (k - (m - 1) / 2) * 40; }
+      if (n.place) { dy = PLACE_R - 12; dx = (k - (m - 1) / 2) * 44; }
       else if (m > 1) { const ang = (Math.PI * 2 * k) / m - Math.PI / 2; dx = Math.cos(ang) * 24; dy = Math.sin(ang) * 24; }
       g.style.transform = `translate(${n.x + dx}px, ${n.y + dy}px)`;
       g.classList.toggle("is-current", i === state.cur && !state.teams[i].finished);
@@ -519,7 +519,8 @@
     const pips = { 1: [4], 2: [0, 8], 3: [0, 4, 8] }[v] || [];
     let s = "";
     for (let i = 0; i < 9; i++) s += `<i class="${pips.includes(i) ? "on" : ""}"></i>`;
-    return `<div class="die${rolling ? " is-rolling" : ""}" aria-label="Dice: ${v || "not rolled"}">${s}</div>`;
+    if (!v) return `<div class="die die--empty" aria-label="Dice not rolled">?</div>`;
+    return `<div class="die${rolling ? " is-rolling" : ""}" aria-label="Dice: ${v}">${s}</div>`;
   }
 
   function sayPhrase() {

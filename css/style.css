@@ -199,7 +199,7 @@ kbd {
 @keyframes drop { from { opacity: 0; transform: translate(-50%, -12px); } }
 
 /* ---- Board SVG ---- */
-.edge { stroke: var(--path); stroke-width: 16; stroke-linecap: round; fill: none; }
+.edge { stroke: var(--path); stroke-width: 18; stroke-linecap: round; fill: none; }
 .edge.is-option { stroke: #B9CFF0; }
 .cell circle.base { fill: #fff; stroke-width: 5; }
 .cell--q circle.base { stroke: var(--q); fill: var(--q-soft); }
@@ -213,9 +213,9 @@ kbd {
 .place .ring { fill: #fff; filter: drop-shadow(0 6px 14px rgba(16,24,40,.14)); }
 .place .ring-accent { fill: none; stroke: var(--p); stroke-width: 5; }
 .place--finish .ring-accent { stroke: #E7B416; }
-.place-label { font: 700 26px var(--font); fill: var(--text); text-anchor: middle; }
-.place-sub { font: 500 19px var(--font); fill: var(--text-2); text-anchor: middle; }
-.start-label { font: 700 18px var(--font); fill: var(--text-2); text-anchor: middle; letter-spacing: .08em; }
+.place-label { font: 700 31px var(--font); fill: var(--text); text-anchor: middle; }
+.place-sub { font: 500 23px var(--font); fill: var(--text-2); text-anchor: middle; }
+.start-label { font: 800 21px var(--font); fill: var(--text-2); text-anchor: middle; letter-spacing: .08em; }
 
 .pulse { fill: none; stroke: var(--accent); stroke-width: 4; opacity: 0; }
 .is-target .pulse { animation: pulse 1.2s var(--ease) infinite; }
@@ -228,7 +228,7 @@ kbd {
 
 .token { transition: transform .32s var(--ease); }
 .token circle.body { stroke: #fff; stroke-width: 5; filter: drop-shadow(0 4px 8px rgba(16,24,40,.25)); }
-.token text { font: 800 22px var(--font); fill: #fff; text-anchor: middle; dominant-baseline: central; }
+.token text { font: 800 25px var(--font); fill: #fff; text-anchor: middle; dominant-baseline: central; }
 .token.is-current circle.halo { animation: halo 1.4s ease-in-out infinite; }
 .token circle.halo { fill: none; stroke-width: 4; opacity: .5; transform-box: fill-box; transform-origin: center; }
 @keyframes halo { 0%,100% { transform: scale(1); opacity: .55; } 50% { transform: scale(1.35); opacity: 0; } }
@@ -264,6 +264,7 @@ kbd {
 }
 .die i { width: 100%; aspect-ratio: 1; border-radius: 50%; background: transparent; place-self: center; max-width: .95rem; }
 .die i.on { background: var(--text); }
+.die--empty { display: grid; place-items: center; grid-template-columns: 1fr; font-size: 2.2rem; font-weight: 800; color: var(--text-3); padding: 0; }
 .die.is-rolling { animation: shake .6s var(--ease); }
 @keyframes shake { 0% { transform: rotate(0); } 25% { transform: rotate(-14deg) scale(1.06); } 50% { transform: rotate(10deg); } 75% { transform: rotate(-6deg) scale(1.03); } 100% { transform: rotate(0); } }
 .steps-left { font-size: 1.05rem; color: var(--text-2); }
