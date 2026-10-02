@@ -98,7 +98,7 @@ window.TT_DATA = {
     },
     park: {
       name: "Park",
-      blurb: "Longer road · no-phone zone",
+      blurb: "Longer road · calm",
       questions: [
         { q: "Plan a no-phone weekend for your team. What will you do?", say: "On Saturday we will… On Sunday we’re going to…", hint: "future: will / going to · picnic, football, board games, cook together" },
         { q: "Why is it important to spend time in nature without screens?", say: "It’s important because…", hint: "rest for eyes and brain, fresh air, sport, less stress, better sleep" },
