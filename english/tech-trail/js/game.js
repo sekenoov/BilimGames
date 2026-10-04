@@ -764,29 +764,83 @@
   let placeholderPool = shuffle(D.teamNames);
   function currentPlaceholders() { return placeholderPool.slice(0, 4); }
 
+  let setupReady = false;
+
   function renderSetup() {
     setSeg("#seg-teams", config.teams);
     setSeg("#seg-time", config.minutes);
     setSeg("#seg-answer", config.answer);
-    const ph = currentPlaceholders();
-    const rows = $("#team-rows");
-    rows.innerHTML = "";
-    for (let i = 0; i < config.teams; i++) {
-      const row = document.createElement("div");
-      row.className = "team-row";
-      row.innerHTML = `
-        <i class="team-row__dot" style="background:${TEAM_COLORS[i]}"></i>
-        <input type="text" maxlength="18" placeholder="${esc(ph[i])}" value="${esc(config.names[i] || "")}" aria-label="Team ${i + 1} name" data-i="${i}">
-        <div class="stepper" aria-label="Players in team ${i + 1}">
-          <button type="button" data-step="-1" data-i="${i}" aria-label="Fewer players">−</button>
-          <output>${config.players[i]} ${config.players[i] === 1 ? "player" : "players"}</output>
-          <button type="button" data-step="1" data-i="${i}" aria-label="More players">+</button>
-        </div>`;
-      rows.appendChild(row);
-    }
+    syncTeamRows();
   }
+
+  // Restart a short CSS animation on an element.
+  function replay(node, cls) { node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
+  const playersText = (n) => `${n} ${n === 1 ? "player" : "players"}`;
+
+  // Team rows are not rebuilt on every click: only what changed is updated,
+  // new rows slide open and removed rows slide shut.
+  function syncTeamRows() {
+    const rows = $("#team-rows");
+    const ph = currentPlaceholders();
+    const live = () => [...rows.children].filter((r) => !r.classList.contains("is-leaving"));
+    while (live().length < config.teams) {
+      const back = rows.querySelector(".is-leaving");
+      if (back) { back.classList.remove("is-leaving"); slide(back, true); continue; }
+      const i = live().length;
+      const slot = document.createElement("div");
+      slot.className = "team-slot";
+      slot.innerHTML = `
+        <div class="team-row">
+          <i class="team-row__dot" style="background:${TEAM_COLORS[i]}"></i>
+          <input type="text" maxlength="18" aria-label="Team ${i + 1} name" data-i="${i}">
+          <div class="stepper" aria-label="Players in team ${i + 1}">
+            <button type="button" data-step="-1" data-i="${i}" aria-label="Fewer players">−</button>
+            <output></output>
+            <button type="button" data-step="1" data-i="${i}" aria-label="More players">+</button>
+          </div>
+        </div>`;
+      rows.appendChild(slot);
+      if (setupReady) slide(slot, true);
+    }
+    live().slice(config.teams).forEach((slot) => { slot.classList.add("is-leaving"); slide(slot, false); });
+    live().forEach((slot, i) => {
+      const inp = slot.querySelector("input");
+      inp.placeholder = ph[i];
+      const name = config.names[i] || "";
+      if (document.activeElement !== inp && inp.value !== name) inp.value = name;
+      const out = slot.querySelector("output"), txt = playersText(config.players[i]);
+      if (out.textContent !== txt) out.textContent = txt;
+    });
+  }
+
+  function slide(el, open) {
+    const token = (el._slide = (el._slide || 0) + 1);
+    const done = () => {
+      if (el._slide !== token) return;
+      if (!open) return el.remove();
+      el.classList.remove("is-sliding");
+      el.style.height = el.style.opacity = "";
+    };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
+    const fresh = open && !el.style.height;          // a new row grows from zero
+    const from = fresh ? 0 : el.offsetHeight;          // otherwise from its current height, even mid-animation
+    el.classList.add("is-sliding");
+    el.style.transition = "none";
+    el.style.height = from + "px";
+    if (fresh) el.style.opacity = "0";
+    void el.offsetHeight;
+    el.style.transition = "";
+    el.style.height = (open ? el.scrollHeight : 0) + "px";
+    el.style.opacity = open ? "1" : "0";
+    setTimeout(done, 340);
+  }
+
   function setSeg(sel, v) {
-    document.querySelectorAll(sel + " button").forEach((b) => b.setAttribute("aria-checked", String(Number(b.dataset.v) === Number(v))));
+    const g = $(sel), bs = [...g.querySelectorAll("button")];
+    const i = bs.findIndex((b) => Number(b.dataset.v) === Number(v));
+    bs.forEach((b, k) => b.setAttribute("aria-checked", String(k === i)));
+    g.style.setProperty("--n", bs.length);
+    g.style.setProperty("--i", Math.max(0, i));
   }
 
   $("#seg-teams").addEventListener("click", (e) => {
@@ -807,8 +861,11 @@
   $("#team-rows").addEventListener("click", (e) => {
     const b = e.target.closest("[data-step]"); if (!b) return;
     const i = Number(b.dataset.i);
-    config.players[i] = Math.max(1, Math.min(12, config.players[i] + Number(b.dataset.step)));
-    Sound.click(); renderSetup(); saveConfig();
+    const v = Math.max(1, Math.min(12, config.players[i] + Number(b.dataset.step)));
+    if (v === config.players[i]) { replay(b.closest(".stepper"), "nope"); return; }
+    config.players[i] = v;
+    Sound.click(); syncTeamRows(); saveConfig();
+    replay(b.closest(".stepper").querySelector("output"), "bump");
   });
   $("#setup-form").addEventListener("submit", (e) => { e.preventDefault(); Sound.unlock(); newGame(); });
 
@@ -929,6 +986,9 @@
   window.addEventListener("blur", () => showHint(false));
 
   /* ============ Boot ============ */
+  // A pill that slides to the selected option in segmented controls.
+  document.querySelectorAll(".segmented").forEach((g) => g.insertAdjacentHTML("afterbegin", '<span class="seg-thumb" aria-hidden="true"></span>'));
   renderSetup();
+  requestAnimationFrame(() => requestAnimationFrame(() => { setupReady = true; document.body.classList.add("is-ready"); }));
   requestAnimationFrame(tickClock);
 })();
