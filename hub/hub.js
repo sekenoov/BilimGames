@@ -6,20 +6,20 @@
   const SUBJECTS = [
     {
       id: "history",
-      img: "history-kz/assets/cover.png",
+      img: "games/history-kz/great-steppe/assets/cover.png",
       ru: { name: "История Казахстана", note: "Игра на казахском и русском языке" },
       kz: { name: "Қазақстан тарихы", note: "Ойын қазақ және орыс тілінде" },
       en: { name: "History of Kazakhstan", note: "The game is in Kazakh and Russian" },
       topics: [
-        { href: "history-kz/index.html?topic=turks", img: "history-kz/assets/t_altai.png",
+        { href: "games/history-kz/great-steppe/index.html?topic=turks", img: "games/history-kz/great-steppe/assets/t_altai.png",
           ru: { name: "Империя тюркских кочевников", about: "Тюркский каганат, Шёлковый путь, Караханиды, кыпчаки" },
           kz: { name: "Түркі көшпелілерінің империясы", about: "Түрік қағанаты, Жібек жолы, Қарахандар, қыпшақтар" },
           en: { name: "Empire of the Turkic nomads", about: "The Turkic Khaganate, the Silk Road, the Karakhanids, the Kipchaks" } },
-        { href: "history-kz/index.html?topic=khanate", img: "history-kz/assets/k_kozybasy.png",
+        { href: "games/history-kz/great-steppe/index.html?topic=khanate", img: "games/history-kz/great-steppe/assets/k_kozybasy.png",
           ru: { name: "Казахское ханство", about: "Керей и Жанибек, ханы, бии, «Жеті жарғы», борьба с джунгарами" },
           kz: { name: "Қазақ хандығы", about: "Керей мен Жәнібек, хандар, билер, «Жеті жарғы», жоңғарлармен күрес" },
           en: { name: "The Kazakh Khanate", about: "Kerei and Zhanibek, khans, biys, 'Zheti Zhargy', the fight against the Dzungars" } },
-        { href: "history-kz/index.html?topic=both", img: "history-kz/assets/k_turkistan.png",
+        { href: "games/history-kz/great-steppe/index.html?topic=both", img: "games/history-kz/great-steppe/assets/k_turkistan.png",
           ru: { name: "Обе темы", about: "Один путь от Тюркского каганата до Казахского ханства" },
           kz: { name: "Екі тақырып та", about: "Түрік қағанатынан Қазақ хандығына дейінгі бір жол" },
           en: { name: "Both topics", about: "One road from the Turkic Khaganate to the Kazakh Khanate" } }
@@ -27,12 +27,12 @@
     },
     {
       id: "english",
-      img: "english/tech-trail/assets/cover.png",
+      img: "games/english/tech-trail/assets/cover.png",
       ru: { name: "Английский язык", note: "Игра на английском, уровень A2-B1" },
       kz: { name: "Ағылшын тілі", note: "Ойын ағылшын тілінде, A2-B1 деңгейі" },
       en: { name: "English", note: "The game is in English, level A2-B1" },
       topics: [
-        { href: "english/tech-trail/index.html", img: "english/tech-trail/assets/techlab.png",
+        { href: "games/english/tech-trail/index.html", img: "games/english/tech-trail/assets/techlab.png",
           ru: { name: "Tech Trail: польза и вред технологий", about: "Говорим по-английски о гаджетах, интернете и играх" },
           kz: { name: "Tech Trail: технологияның пайдасы мен зияны", about: "Гаджет, интернет және ойындар туралы ағылшынша сөйлейміз" },
           en: { name: "Tech Trail: the good and bad sides of technology", about: "Speak English about gadgets, the internet and games" } }

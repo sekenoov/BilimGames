@@ -6,7 +6,7 @@
 ![Tech Trail](assets/cover.png)
 
 ## Играть онлайн
-**https://sekenoov.github.io/tech-trail-english-game/**
+**https://sekenoov.github.io/BilimGames/games/english/tech-trail/**
 
 ## Запуск без интернета
 Скачайте репозиторий и откройте `index.html` двойным кликом. Интернет и сервер не нужны.
