@@ -9,16 +9,20 @@
       img: "history-kz/assets/cover.png",
       ru: { name: "История Казахстана", note: "Игра на казахском и русском языке" },
       kz: { name: "Қазақстан тарихы", note: "Ойын қазақ және орыс тілінде" },
+      en: { name: "History of Kazakhstan", note: "The game is in Kazakh and Russian" },
       topics: [
         { href: "history-kz/index.html?topic=turks", img: "history-kz/assets/t_altai.png",
           ru: { name: "Империя тюркских кочевников", about: "Тюркский каганат, Шёлковый путь, Караханиды, кыпчаки" },
-          kz: { name: "Түркі көшпелілерінің империясы", about: "Түрік қағанаты, Жібек жолы, Қарахандар, қыпшақтар" } },
+          kz: { name: "Түркі көшпелілерінің империясы", about: "Түрік қағанаты, Жібек жолы, Қарахандар, қыпшақтар" },
+          en: { name: "Empire of the Turkic nomads", about: "The Turkic Khaganate, the Silk Road, the Karakhanids, the Kipchaks" } },
         { href: "history-kz/index.html?topic=khanate", img: "history-kz/assets/k_kozybasy.png",
           ru: { name: "Казахское ханство", about: "Керей и Жанибек, ханы, бии, «Жеті жарғы», борьба с джунгарами" },
-          kz: { name: "Қазақ хандығы", about: "Керей мен Жәнібек, хандар, билер, «Жеті жарғы», жоңғарлармен күрес" } },
+          kz: { name: "Қазақ хандығы", about: "Керей мен Жәнібек, хандар, билер, «Жеті жарғы», жоңғарлармен күрес" },
+          en: { name: "The Kazakh Khanate", about: "Kerei and Zhanibek, khans, biys, 'Zheti Zhargy', the fight against the Dzungars" } },
         { href: "history-kz/index.html?topic=both", img: "history-kz/assets/k_turkistan.png",
           ru: { name: "Обе темы", about: "Один путь от Тюркского каганата до Казахского ханства" },
-          kz: { name: "Екі тақырып та", about: "Түрік қағанатынан Қазақ хандығына дейінгі бір жол" } }
+          kz: { name: "Екі тақырып та", about: "Түрік қағанатынан Қазақ хандығына дейінгі бір жол" },
+          en: { name: "Both topics", about: "One road from the Turkic Khaganate to the Kazakh Khanate" } }
       ]
     },
     {
@@ -26,10 +30,12 @@
       img: "english/tech-trail/assets/cover.png",
       ru: { name: "Английский язык", note: "Игра на английском, уровень A2-B1" },
       kz: { name: "Ағылшын тілі", note: "Ойын ағылшын тілінде, A2-B1 деңгейі" },
+      en: { name: "English", note: "The game is in English, level A2-B1" },
       topics: [
         { href: "english/tech-trail/index.html", img: "english/tech-trail/assets/techlab.png",
           ru: { name: "Tech Trail: польза и вред технологий", about: "Говорим по-английски о гаджетах, интернете и играх" },
-          kz: { name: "Tech Trail: технологияның пайдасы мен зияны", about: "Гаджет, интернет және ойындар туралы ағылшынша сөйлейміз" } }
+          kz: { name: "Tech Trail: технологияның пайдасы мен зияны", about: "Гаджет, интернет және ойындар туралы ағылшынша сөйлейміз" },
+          en: { name: "Tech Trail: the good and bad sides of technology", about: "Speak English about gadgets, the internet and games" } }
       ]
     }
   ];
@@ -60,14 +66,28 @@
       chooseTopic: "Тақырыпты таңдаңыз",
       topics: (n) => `${n} тақырып`,
       open: "Ашу"
+    },
+    en: {
+      eyebrow: "Classroom games platform",
+      title: "Learn together, play as a whole class",
+      lead: "Games for a shared screen: teams answer, the teacher gives points, an operator runs the game from the keyboard.",
+      facts: ["2-4 teams", "10-20 minutes", "Works offline"],
+      play: "Play",
+      back: "Back",
+      step: "Step",
+      chooseSubject: "Choose a subject",
+      chooseTopic: "Choose a topic",
+      topics: (n) => `${n} ${n === 1 ? "topic" : "topics"}`,
+      open: "Open"
     }
   };
+  const LANGS = ["kz", "ru", "en"];
 
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   let lang = "kz";
-  try { const s = localStorage.getItem("bilim-lang"); if (s === "ru" || s === "kz") lang = s; } catch (e) {}
+  try { const s = localStorage.getItem("bilim-lang"); if (LANGS.includes(s)) lang = s; } catch (e) {}
   let subject = null;
 
   function route() {
@@ -80,9 +100,12 @@
 
   function render() {
     const t = T[lang];
-    document.documentElement.lang = lang === "kz" ? "kk" : "ru";
+    document.documentElement.lang = { kz: "kk", ru: "ru", en: "en" }[lang];
     document.querySelectorAll("[data-t]").forEach((n) => { const v = t[n.dataset.t]; if (typeof v === "string") n.textContent = v; });
-    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.lang === lang)));
+    const lb = [...document.querySelectorAll(".lang button")];
+    lb.forEach((b) => b.setAttribute("aria-checked", String(b.dataset.lang === lang)));
+    $(".lang").style.setProperty("--n", lb.length);
+    $(".lang").style.setProperty("--i", Math.max(0, lb.findIndex((b) => b.dataset.lang === lang)));
     $("#facts").innerHTML = t.facts.map((f) => `<li>${esc(f)}</li>`).join("");
 
     $("#subjects").innerHTML = SUBJECTS.map((s, i) => `
@@ -102,7 +125,7 @@
       $("#topics-subject").textContent = subject[lang].name;
       $("#topics").className = "tiles tiles--" + Math.min(subject.topics.length, 3);
       $("#topics").innerHTML = subject.topics.map((tp, i) => `
-        <a class="tile" href="${tp.href}${tp.href.includes("?") ? "&" : "?"}lang=${lang}">
+        <a class="tile" href="${tp.href}${lang === "en" ? "" : (tp.href.includes("?") ? "&" : "?") + "lang=" + lang}">
           <span class="tile__img"><img src="${tp.img}" alt=""></span>
           <span class="tile__body">
             <kbd>${i + 1}</kbd>
@@ -114,6 +137,13 @@
     document.querySelectorAll(".view").forEach((v) => v.classList.toggle("is-active", v.id === "view-" + r.view));
   }
 
+  function setLang(l) {
+    if (l === lang) return;
+    lang = l;
+    try { localStorage.setItem("bilim-lang", lang); } catch (err) {}
+    render();
+  }
+
   function go(view) { location.hash = view === "home" ? "" : view; }
   function back() { const r = route(); go(r.view === "topics" ? "subjects" : "home"); }
 
@@ -123,12 +153,12 @@
     if (g) { e.preventDefault(); go(g.dataset.go); return; }
     if (e.target.closest("[data-back]")) { back(); return; }
     const l = e.target.closest("[data-lang]");
-    if (l) { lang = l.dataset.lang; try { localStorage.setItem("bilim-lang", lang); } catch (err) {} render(); }
+    if (l) setLang(l.dataset.lang);
   });
   document.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const r = route();
-    if (e.code === "KeyL") { lang = lang === "kz" ? "ru" : "kz"; try { localStorage.setItem("bilim-lang", lang); } catch (err) {} render(); return; }
+    if (e.code === "KeyL") { setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]); return; }
     if (r.view === "home" && e.key === "Enter" && !e.target.closest("a, button")) { e.preventDefault(); go("subjects"); return; }
     if (e.key === "Escape" || e.key === "Backspace") { if (r.view !== "home") { e.preventDefault(); back(); } return; }
     const d = /^Digit([1-9])$/.exec(e.code);
@@ -139,5 +169,8 @@
     }
   });
 
+  // Подложка, которая переезжает к выбранному языку.
+  $(".lang").insertAdjacentHTML("afterbegin", '<span class="seg-thumb" aria-hidden="true"></span>');
   render();
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add("is-ready")));
 })();
