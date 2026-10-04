@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Путь Великой степи</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============ SETUP ============ -->
+  <section id="screen-setup" class="screen is-active" aria-labelledby="setup-title">
+    <div class="setup-top">
+      <a class="back-link" href="../index.html" data-t="allGames">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span></span>
+      </a>
+      <div class="lang" role="radiogroup" aria-label="Тіл / Язык">
+        <button type="button" role="radio" data-lang="kz">Қаз</button>
+        <button type="button" role="radio" data-lang="ru">Рус</button>
+      </div>
+    </div>
+
+    <div class="setup">
+      <div class="setup__hero">
+        <img src="assets/cover.png" alt="" class="setup__cover">
+        <div class="setup__intro">
+          <p class="eyebrow" data-t="eyebrow"></p>
+          <h1 id="setup-title" class="wordmark" data-t="wordmark"></h1>
+          <p class="lead" data-t="lead"></p>
+          <ol class="rules" id="rules"></ol>
+        </div>
+      </div>
+
+      <form class="setup__panel" id="setup-form" autocomplete="off">
+        <div class="field">
+          <span class="field__label" data-t="topic"></span>
+          <div class="segmented segmented--topic" id="seg-topic" role="radiogroup">
+            <button type="button" role="radio" data-v="turks"></button>
+            <button type="button" role="radio" data-v="khanate"></button>
+            <button type="button" role="radio" data-v="both"></button>
+          </div>
+          <p class="field__note" id="topic-about"></p>
+        </div>
+
+        <div class="field">
+          <span class="field__label" data-t="level"></span>
+          <div class="segmented" id="seg-level" role="radiogroup">
+            <button type="button" role="radio" data-v="1"></button>
+            <button type="button" role="radio" data-v="2"></button>
+            <button type="button" role="radio" data-v="3"></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field__label" data-t="teams"></span>
+          <div class="segmented" id="seg-teams" role="radiogroup">
+            <button type="button" role="radio" data-v="2">2</button>
+            <button type="button" role="radio" data-v="3">3</button>
+            <button type="button" role="radio" data-v="4">4</button>
+          </div>
+        </div>
+
+        <div id="team-rows" class="team-rows"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <span class="field__label" data-t="gameTime"></span>
+            <div class="segmented" id="seg-time" role="radiogroup">
+              <button type="button" role="radio" data-v="10"></button>
+              <button type="button" role="radio" data-v="15"></button>
+              <button type="button" role="radio" data-v="20"></button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="field__label" data-t="answerTime"></span>
+            <div class="segmented" id="seg-answer" role="radiogroup">
+              <button type="button" role="radio" data-v="30"></button>
+              <button type="button" role="radio" data-v="45"></button>
+              <button type="button" role="radio" data-v="60"></button>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--large" id="btn-start"><span data-t="start"></span> <kbd>Enter</kbd></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen" aria-label="Game">
+    <header class="topbar">
+      <div class="topbar__brand"><span data-t="wordmark"></span><small id="topbar-topic"></small></div>
+      <div class="clock" id="clock">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+        <span id="clock-text">15:00</span>
+      </div>
+      <div class="topbar__actions">
+        <div class="lang lang--small" role="radiogroup" aria-label="Тіл / Язык">
+          <button type="button" role="radio" data-lang="kz">Қаз</button>
+          <button type="button" role="radio" data-lang="ru">Рус</button>
+        </div>
+        <button class="icon-btn" id="btn-undo">
+          <svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-sound">
+          <svg viewBox="0 0 24 24" class="ic-on"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+          <svg viewBox="0 0 24 24" class="ic-off"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="m22 9-6 6M16 9l6 6"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-full">
+          <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-help">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-exit">
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="board-wrap">
+        <svg id="board" viewBox="0 0 1600 1100" preserveAspectRatio="xMidYMid meet" aria-label="Board"></svg>
+        <div class="legend" id="legend" aria-hidden="true"></div>
+        <div class="banner" id="banner" hidden></div>
+      </div>
+
+      <aside class="side">
+        <div class="turn" id="turn"></div>
+        <div class="scores" id="scores"></div>
+        <div class="keys" id="keys"></div>
+      </aside>
+    </div>
+
+    <div class="overlay" id="overlay" hidden>
+      <div class="card" id="card" role="dialog" aria-modal="true"></div>
+    </div>
+
+    <div class="overlay" id="help" hidden>
+      <div class="card card--help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+        <h2 id="help-title" data-t="helpTitle"></h2>
+        <div class="help-grid" id="help-grid"></div>
+        <button class="btn btn--primary" data-close-help><span data-t="gotIt"></span> <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="screen-results" class="screen" aria-labelledby="results-title">
+    <div class="results">
+      <img src="assets/finish.png" alt="" class="results__img">
+      <p class="eyebrow" id="results-eyebrow"></p>
+      <h1 id="results-title" class="results__title"></h1>
+      <ol class="podium" id="podium"></ol>
+      <p class="results__q" id="results-q"></p>
+      <div class="results__actions">
+        <button class="btn btn--primary btn--large" id="btn-again" data-t="again"></button>
+        <button class="btn btn--large" id="btn-newteams" data-t="newTeams"></button>
+        <a class="btn btn--large" href="../index.html" data-t="allGames"></a>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/data-turks.js"></script>
+  <script src="js/data-khanate.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
