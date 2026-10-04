@@ -27,6 +27,7 @@
 
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --ease: cubic-bezier(.2, .8, .2, 1);
+  --spring: cubic-bezier(.32, .72, 0, 1);   /* мягкое замедление, как в iOS */
 }
 
 * { box-sizing: border-box; }
@@ -124,6 +125,7 @@ kbd {
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
 
 .segmented {
+  position: relative; isolation: isolate;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   background: var(--surface-2); border-radius: 14px; padding: 4px;
   box-shadow: inset 0 0 0 1px var(--line);
@@ -131,11 +133,14 @@ kbd {
 .segmented button {
   border: 0; background: transparent; border-radius: 10px;
   min-height: 2.6rem; font-weight: 600; color: var(--text-2);
-  transition: background .2s var(--ease), color .2s;
+  transition: color .2s var(--spring), transform .2s var(--spring);
 }
-.segmented button[aria-checked="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+.segmented button:active { transform: scale(.95); }
+.segmented button[aria-checked="true"] { color: var(--text); }
 
-.team-rows { display: grid; gap: .7rem; }
+.team-rows { display: flex; flex-direction: column; margin-bottom: -.7rem; }
+.team-slot { padding-bottom: .7rem; }
+.team-slot.is-sliding { overflow: hidden; transition: height .32s var(--spring), opacity .24s ease; }
 .team-row {
   display: grid; grid-template-columns: 1.4rem 1fr auto; align-items: center; gap: .9rem;
   padding: .55rem .6rem .55rem 1rem; border-radius: var(--radius-m);
@@ -151,8 +156,15 @@ kbd {
 .stepper button {
   width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 0;
   background: var(--surface); box-shadow: var(--shadow-1); font-size: 1.2rem; font-weight: 600; line-height: 1;
+  transition: transform .18s var(--spring), background .15s;
 }
-.stepper output { min-width: 4.8rem; text-align: center; font-weight: 600; color: var(--text); }
+.stepper button:hover { background: var(--accent-soft); }
+.stepper button:active { transform: scale(.88); }
+.stepper output { display: inline-block; min-width: 4.8rem; text-align: center; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.stepper output.bump { animation: bump .26s var(--spring); }
+.stepper.nope { animation: nope .3s var(--spring); }
+@keyframes bump { 40% { transform: scale(1.1); } }
+@keyframes nope { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
 
 /* ============ Game layout ============ */
 #screen-game { flex-direction: column; }
@@ -423,7 +435,8 @@ kbd {
 .back-link svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 
 .lang {
-  display: inline-grid; grid-auto-flow: column; gap: 2px;
+  position: relative; isolation: isolate;
+  display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0;
   background: var(--surface-2); border-radius: 999px; padding: 3px;
   box-shadow: inset 0 0 0 1px var(--line);
 }
@@ -431,14 +444,28 @@ kbd {
   border: 0; background: transparent; border-radius: 999px;
   min-width: 3.4rem; min-height: 2.4rem; padding: 0 .8rem;
   font-weight: 700; font-size: .95rem; color: var(--text-2);
-  transition: background .2s var(--ease), color .2s;
+  transition: color .2s var(--spring), transform .2s var(--spring);
 }
-.lang button[aria-checked="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+.lang button:active { transform: scale(.94); }
+.lang button[aria-checked="true"] { color: var(--text); }
 .lang--small button { min-width: 2.9rem; min-height: 2.1rem; font-size: .85rem; }
 .topbar__actions { align-items: center; }
 .topbar__actions .lang { margin-right: .5rem; }
 
 .field__note { margin: 0; font-size: .95rem; color: var(--text-2); line-height: 1.4; }
+.field__note.swap { animation: swap .28s var(--spring); }
+@keyframes swap { from { opacity: 0; transform: translateY(-4px); } }
+
+/* Подложка выбранной кнопки: переезжает, а не мигает */
+.seg-thumb {
+  position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 4px;
+  width: calc((100% - 8px) / var(--n, 3));
+  border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-1);
+  transform: translateX(calc(var(--i, 0) * 100%));
+  will-change: transform;
+}
+.lang .seg-thumb { top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--n, 2)); border-radius: 999px; }
+.is-ready .seg-thumb { transition: transform .34s var(--spring); }
 .segmented--topic button { font-size: 1.05rem; }
 .topbar__brand { display: flex; align-items: baseline; gap: .7rem; white-space: nowrap; }
 .topbar__brand small { font-size: .95rem; font-weight: 600; color: var(--text-2); letter-spacing: 0; }

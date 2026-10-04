@@ -18,14 +18,16 @@
   function pickLang() {
     const q = new URLSearchParams(location.search).get("lang");
     if (q === "ru" || q === "kz") return q;
-    try { const s = localStorage.getItem("bilim-lang"); if (s === "ru" || s === "kz") return s; } catch (e) {}
+    try {
+      for (const k of ["bilim-lang", "bilim-game-lang"]) { const s = localStorage.getItem(k); if (s === "ru" || s === "kz") return s; }
+    } catch (e) {}
     return "kz";
   }
   function setLang(l) {
     if (l === lang || !I18N[l]) return;
     lang = l;
     T = I18N[lang];
-    try { localStorage.setItem("bilim-lang", lang); } catch (e) {}
+    try { localStorage.setItem("bilim-lang", lang); localStorage.setItem("bilim-game-lang", lang); } catch (e) {}
     Sound.click();
     applyStatic();
     renderSetup();
@@ -841,7 +843,12 @@
       (n.querySelector("span") || n).textContent = v;
     });
     $("#rules").innerHTML = T.rules.map((r, i) => `<li><span class="rules__n">${i + 1}</span>${esc(r)}</li>`).join("");
-    document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.lang === lang)));
+    document.querySelectorAll(".lang").forEach((g) => {
+      const bs = [...g.querySelectorAll("button")];
+      bs.forEach((b) => b.setAttribute("aria-checked", String(b.dataset.lang === lang)));
+      g.style.setProperty("--n", bs.length);
+      g.style.setProperty("--i", Math.max(0, bs.findIndex((b) => b.dataset.lang === lang)));
+    });
     $("#legend").innerHTML = ["q", "b", "t", "p"].map((k) => `<span><i class="dot dot--${k}"></i>${T.legend[k]}</span>`).join("");
     $("#help-grid").innerHTML = T.help.map(([k, v]) => `<div>${k.split(" / ").map((x) => `<kbd>${esc(x)}</kbd>`).join(" / ")} ${esc(v)}</div>`).join("");
     const A = T.aria;
@@ -854,6 +861,7 @@
 
   /* ============ Setup ============ */
   let placeholderPool = shuffle(window.HK_TEAM_NAMES);
+  let setupReady = false;
   function currentPlaceholders() { return placeholderPool.slice(0, 4); }
 
   function renderSetup() {
@@ -861,37 +869,92 @@
     document.querySelectorAll("#seg-level button").forEach((b) => { b.textContent = T.levels[Number(b.dataset.v) - 1]; });
     document.querySelectorAll("#seg-time button").forEach((b) => { b.textContent = `${b.dataset.v} ${T.min}`; });
     document.querySelectorAll("#seg-answer button").forEach((b) => { b.textContent = `${b.dataset.v} ${T.sec}`; });
-    $("#topic-about").textContent = L(D.topics[config.topic]).about;
+    const about = $("#topic-about"), txt = L(D.topics[config.topic]).about;
+    if (about.textContent !== txt) { about.textContent = txt; if (setupReady) replay(about, "swap"); }
     setSeg("#seg-topic", config.topic);
     setSeg("#seg-level", config.level);
     setSeg("#seg-teams", config.teams);
     setSeg("#seg-time", config.minutes);
     setSeg("#seg-answer", config.answer);
-    const ph = currentPlaceholders();
-    const rows = $("#team-rows");
-    rows.innerHTML = "";
-    for (let i = 0; i < config.teams; i++) {
-      const row = document.createElement("div");
-      row.className = "team-row";
-      row.innerHTML = `
-        <i class="team-row__dot" style="background:${TEAM_COLORS[i]}"></i>
-        <input type="text" maxlength="18" placeholder="${esc(ph[i])}" value="${esc(config.names[i] || "")}" aria-label="${esc(T.teamName(i + 1))}" data-i="${i}">
-        <div class="stepper">
-          <button type="button" data-step="-1" data-i="${i}" aria-label="${esc(T.fewer)}">−</button>
-          <output>${T.players(config.players[i])}</output>
-          <button type="button" data-step="1" data-i="${i}" aria-label="${esc(T.more)}">+</button>
-        </div>`;
-      rows.appendChild(row);
-    }
+    syncTeamRows();
   }
+
+  // Перезапуск короткой CSS-анимации на элементе.
+  function replay(node, cls) { node.classList.remove(cls); void node.offsetWidth; node.classList.add(cls); }
+
+  // Строки команд не пересоздаются: обновляется только то, что изменилось,
+  // новые строки плавно раскрываются, лишние плавно сворачиваются.
+  function syncTeamRows() {
+    const rows = $("#team-rows");
+    const ph = currentPlaceholders();
+    const live = () => [...rows.children].filter((r) => !r.classList.contains("is-leaving"));
+    while (live().length < config.teams) {
+      const back = rows.querySelector(".is-leaving");
+      if (back) { back.classList.remove("is-leaving"); slide(back, true); continue; }
+      const i = live().length;
+      const slot = document.createElement("div");
+      slot.className = "team-slot";
+      slot.innerHTML = `
+        <div class="team-row">
+          <i class="team-row__dot" style="background:${TEAM_COLORS[i]}"></i>
+          <input type="text" maxlength="18" data-i="${i}">
+          <div class="stepper">
+            <button type="button" data-step="-1" data-i="${i}">−</button>
+            <output></output>
+            <button type="button" data-step="1" data-i="${i}">+</button>
+          </div>
+        </div>`;
+      rows.appendChild(slot);
+      if (setupReady) slide(slot, true);
+    }
+    live().slice(config.teams).forEach((slot) => { slot.classList.add("is-leaving"); slide(slot, false); });
+    live().forEach((slot, i) => {
+      const inp = slot.querySelector("input");
+      inp.placeholder = ph[i];
+      inp.setAttribute("aria-label", T.teamName(i + 1));
+      const name = config.names[i] || "";
+      if (document.activeElement !== inp && inp.value !== name) inp.value = name;
+      const out = slot.querySelector("output"), txt = T.players(config.players[i]);
+      if (out.textContent !== txt) out.textContent = txt;
+      slot.querySelector('[data-step="-1"]').setAttribute("aria-label", T.fewer);
+      slot.querySelector('[data-step="1"]').setAttribute("aria-label", T.more);
+    });
+  }
+
+  function slide(el, open) {
+    const token = (el._slide = (el._slide || 0) + 1);
+    const done = () => {
+      if (el._slide !== token) return;
+      if (!open) return el.remove();
+      el.classList.remove("is-sliding");
+      el.style.height = el.style.opacity = "";
+    };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
+    const fresh = open && !el.style.height;          // новая строка: растёт с нуля
+    const from = fresh ? 0 : el.offsetHeight;          // иначе с текущей высоты, даже посреди анимации
+    el.classList.add("is-sliding");
+    el.style.transition = "none";
+    el.style.height = from + "px";
+    if (fresh) el.style.opacity = "0";
+    void el.offsetHeight;
+    el.style.transition = "";
+    el.style.height = (open ? el.scrollHeight : 0) + "px";
+    el.style.opacity = open ? "1" : "0";
+    setTimeout(done, 340);
+  }
+
   function setSeg(sel, v) {
-    document.querySelectorAll(sel + " button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.v === String(v))));
+    const g = $(sel), bs = [...g.querySelectorAll("button")];
+    const i = bs.findIndex((b) => b.dataset.v === String(v));
+    bs.forEach((b, k) => b.setAttribute("aria-checked", String(k === i)));
+    g.style.setProperty("--n", bs.length);
+    g.style.setProperty("--i", Math.max(0, i));
   }
   function segClick(sel, fn) {
     $(sel).addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; fn(b.dataset.v); Sound.click(); renderSetup(); saveConfig(); });
   }
 
-  segClick("#seg-topic", (v) => { config.topic = v; applyStatic(); });
+  segClick("#seg-topic", (v) => { config.topic = v; $("#topbar-topic").textContent = L(D.topics[v]).short; });
   segClick("#seg-level", (v) => { config.level = Number(v); });
   segClick("#seg-teams", (v) => {
     const n = Number(v);
@@ -905,8 +968,11 @@
   $("#team-rows").addEventListener("click", (e) => {
     const b = e.target.closest("[data-step]"); if (!b) return;
     const i = Number(b.dataset.i);
-    config.players[i] = Math.max(1, Math.min(12, config.players[i] + Number(b.dataset.step)));
-    Sound.click(); renderSetup(); saveConfig();
+    const v = Math.max(1, Math.min(12, config.players[i] + Number(b.dataset.step)));
+    if (v === config.players[i]) { replay(b.closest(".stepper"), "nope"); return; }
+    config.players[i] = v;
+    Sound.click(); syncTeamRows(); saveConfig();
+    replay(b.closest(".stepper").querySelector("output"), "bump");
   });
   $("#setup-form").addEventListener("submit", (e) => { e.preventDefault(); Sound.unlock(); applyStatic(); newGame(); applyStatic(); });
   document.querySelectorAll(".lang").forEach((g) => g.addEventListener("click", (e) => {
@@ -1036,7 +1102,10 @@
   window.addEventListener("blur", () => showHint(false));
 
   /* ============ Boot ============ */
+  // Подложка, которая переезжает к выбранной кнопке в переключателях.
+  document.querySelectorAll(".segmented, .lang").forEach((g) => g.insertAdjacentHTML("afterbegin", '<span class="seg-thumb" aria-hidden="true"></span>'));
   applyStatic();
   renderSetup();
+  requestAnimationFrame(() => requestAnimationFrame(() => { setupReady = true; document.body.classList.add("is-ready"); }));
   requestAnimationFrame(tickClock);
 })();
